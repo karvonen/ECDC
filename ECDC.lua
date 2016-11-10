@@ -255,6 +255,19 @@ function ECDC_OnDragStop()
 	ECDC:StopMovingOrSizing()
 end
 
+local frame = CreateFrame("FRAME");frame:SetScript("OnEvent", function()
+    local button = getglobal("ECDC_Button");
+    button:SetScript("OnEnter", function()
+        button:SetAlpha(1);
+    end);
+    button:SetScript("OnLeave", function()
+        button:SetAlpha(0);
+    end);
+    button:SetAlpha(0);
+    frame:UnregisterEvent("PLAYER_ENTERING_WORLD");
+end);
+frame:RegisterEvent("PLAYER_ENTERING_WORLD");
+
 function ECDC_LoadSkills()
 	ECDC_Skills = {
 
