@@ -114,31 +114,41 @@ function ECDC_OnEvent(event)
 	-- For gains
 	for player, spell in string.gfind(arg1, ECDC_GAINS) do
 		if (ECDC_GetSkillCooldown(spell) ~= ECDC_ErrCountdown) then
-			table.insert(ECDC_UsedSkills, {player = player, skill = spell, info = ECDC_GetInfo(spell), texture = ECDC_GetTexture(spell), countdown = ECDC_GetSkillCooldown(spell), started = time()});
+			if (ECDC_UpdateExisting(player, spell) ~= true) then
+				table.insert(ECDC_UsedSkills, {player = player, skill = spell, info = ECDC_GetInfo(spell), texture = ECDC_GetTexture(spell), countdown = ECDC_GetSkillCooldown(spell), started = time()});
+			end
 		end
 	end
 	-- For performs
 	for player, spell in string.gfind(arg1, ECDC_ABILITY_PERFORM) do
 		if (ECDC_GetSkillCooldown(spell) ~= ECDC_ErrCountdown) then
-			table.insert(ECDC_UsedSkills, {player = player, skill = spell, info = ECDC_GetInfo(spell), texture = ECDC_GetTexture(spell), countdown = ECDC_GetSkillCooldown(spell), started = time()});
+			if (ECDC_UpdateExisting(player, spell) ~= true) then
+				table.insert(ECDC_UsedSkills, {player = player, skill = spell, info = ECDC_GetInfo(spell), texture = ECDC_GetTexture(spell), countdown = ECDC_GetSkillCooldown(spell), started = time()});
+			end
 		end
 	end
 	-- For hits
 	for player, spell, afflictee, damage in string.gfind(arg1, ECDC_ABILITY_HITS) do
 		if (ECDC_GetSkillCooldown(spell) ~= ECDC_ErrCountdown) then
-			table.insert(ECDC_UsedSkills, {player = player, skill = spell, info = ECDC_GetInfo(spell), texture = ECDC_GetTexture(spell), countdown = ECDC_GetSkillCooldown(spell), started = time()});
+			if (ECDC_UpdateExisting(player, spell) ~= true) then
+				table.insert(ECDC_UsedSkills, {player = player, skill = spell, info = ECDC_GetInfo(spell), texture = ECDC_GetTexture(spell), countdown = ECDC_GetSkillCooldown(spell), started = time()});
+			end
 		end
 	end
 	-- For crits
 	for player, spell, afflictee, damage in string.gfind(arg1, ECDC_ABILITY_CRITS) do
 		if (ECDC_GetSkillCooldown(spell) ~= ECDC_ErrCountdown) then
-			table.insert(ECDC_UsedSkills, {player = player, skill = spell, info = ECDC_GetInfo(spell), texture = ECDC_GetTexture(spell), countdown = ECDC_GetSkillCooldown(spell), started = time()});
+			if (ECDC_UpdateExisting(player, spell) ~= true) then
+				table.insert(ECDC_UsedSkills, {player = player, skill = spell, info = ECDC_GetInfo(spell), texture = ECDC_GetTexture(spell), countdown = ECDC_GetSkillCooldown(spell), started = time()});
+			end
 		end
 	end
 	-- For absorbs
 	for player, spell, afflictee in string.gfind(arg1, ECDC_ABILITY_ABSORB) do
 		if (ECDC_GetSkillCooldown(spell) ~= ECDC_ErrCountdown) then
-			table.insert(ECDC_UsedSkills, {player = player, skill = spell, info = ECDC_GetInfo(spell), texture = ECDC_GetTexture(spell), countdown = ECDC_GetSkillCooldown(spell), started = time()});
+			if (ECDC_UpdateExisting(player, spell) ~= true) then
+				table.insert(ECDC_UsedSkills, {player = player, skill = spell, info = ECDC_GetInfo(spell), texture = ECDC_GetTexture(spell), countdown = ECDC_GetSkillCooldown(spell), started = time()});
+			end
 		end
 	end
 	-- For charge (Warriors)
@@ -150,10 +160,24 @@ function ECDC_OnEvent(event)
 	-- For casts
 	for player, spell in string.gfind(arg1, ECDC_ABILITY_CAST) do
 		if (ECDC_GetSkillCooldown(spell) ~= ECDC_ErrCountdown) then
-			table.insert(ECDC_UsedSkills, {player = player, skill = spell, info = ECDC_GetInfo(spell), texture = ECDC_GetTexture(spell), countdown = ECDC_GetSkillCooldown(spell), started = time()});
+			if (ECDC_UpdateExisting(player, spell) ~= true) then
+				table.insert(ECDC_UsedSkills, {player = player, skill = spell, info = ECDC_GetInfo(spell), texture = ECDC_GetTexture(spell), countdown = ECDC_GetSkillCooldown(spell), started = time()});
+			end
 		end
 	end
 end
+
+
+function ECDC_UpdateExisting(player, spell)
+	for k, v in pairs(ECDC_UsedSkills) do
+		if ((v.player == player) and (v.skill == spell)) then
+			v.started = time();
+			return true;
+		end
+	end
+	return false;
+end
+
 
 function ECDC_OnUpdate(elapsed)
 	ECDC_TimeSinceLastUpdate = ECDC_TimeSinceLastUpdate + elapsed;
@@ -170,8 +194,10 @@ function ECDC_OnUpdate(elapsed)
 				if (timeleft > 60) then
 					timeleft = ceil(timeleft/60) .. "m";
 					getglobal("ECDC_CD"..i):SetTextColor(0, 1, 0);
-				else
+				elseif (timeleft > 10) then
 					getglobal("ECDC_CD"..i):SetTextColor(1, 1, 0);
+				else
+					getglobal("ECDC_CD"..i):SetTextColor(1, 0, 0);
 				end
 				getglobal("ECDC_CD"..i):SetText(timeleft);
 				getglobal("ECDC_Tex"..i):SetTexture("Interface\\Icons\\"..v.texture);
@@ -345,7 +371,8 @@ function ECDC_LoadSkills()
 		{name = "Portal: Thunder Bluff", cooldown = 60, desc = "Creates a portal, teleporting group members that use it to Thunder Bluff.", icon = "Spell_Arcane_PortalThunderBluff"},
 		{name = "Portal: Undercity", cooldown = 60, desc = "Creates a portal, teleporting group members that use it to Undercity.", icon = "Spell_Arcane_PortalUnderCity"},
 		{name = "Blast Wave", cooldown = 45, desc = "A wave of flame radiates outward from the caster, damaging all enemies caught within the blast for 462 to 544 Fire damage, and dazing them for 6 sec.", icon = "Spell_Holy_Excorcism_02"},
-		{name = "Fire Blast", cooldown = 8, desc = "Blasts the enemy for 431 to 509 Fire damage.", icon = "Spell_Fire_Fireball"},
+		-- 8
+		{name = "Fire Blast", cooldown = 12, desc = "Blasts the enemy for 431 to 509 Fire damage.", icon = "Spell_Fire_Fireball"},
 		{name = "Fire Ward", cooldown = 30, desc = "Absorbs 920 Fire damage. Lasts 30 sec.", icon = "Spell_Fire_FireArmor"},
 		{name = "Cone of Cold", cooldown = 10, desc = "Targets in a cone in front of the caster take 335 to 365 Frost damage and are slowed by 50% for 8 sec.", icon = "Spell_Frost_Glacier"},
 		{name = "Frost Nova", cooldown = 25, desc = "Blasts enemies near the caster for 71 to 79 Frost damage and freezes them in place for up to 8 sec. Damage caused may interrupt the effect.", icon = "Spell_Frost_FrostNova"},
