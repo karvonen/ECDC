@@ -103,7 +103,7 @@ end
 function ECDC_ToolTip(tooltipnum)
 	GameTooltip:SetOwner(this, "ANCHOR_RIGHT");
 	GameTooltip:AddLine(ECDC_ToolTips[tooltipnum]);
-	GameTooltip:AddLine(ECDC_ToolTipDetails[tooltipnum], .8, .8, .8, 1);
+	--GameTooltip:AddLine(ECDC_ToolTipDetails[tooltipnum], .8, .8, .8, 1);
 	GameTooltip:Show();
 end
 
@@ -190,7 +190,7 @@ function ECDC_OnUpdate(elapsed)
 			--	  Only show CD for our target if there is time left on the CD      Loop through Stuff           Warrior enrage isnt a CD, Druid Enrage is!
 			if ((v.player == UnitName("target")) and (timeleft > 0) and (timeleft ~= nil) and (i < 11) and not(UnitClass("target") == "Warrior" and v.skill == "Enrage") and (ECDC_ToolTips[(i-1)] ~= v.skill)) then
 				ECDC_ToolTips[i] = v.skill;
-				ECDC_ToolTipDetails[i] = v.info;
+				-- ECDC_ToolTipDetails[i] = v.info;
 				if (timeleft > 60) then
 					timeleft = ceil(timeleft/60) .. "m";
 					getglobal("ECDC_CD"..i):SetTextColor(0, 1, 0);
