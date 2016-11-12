@@ -7,3 +7,4 @@
 - Fixed overlapping timers, existing timers now update instead of new one always being created.
 - Removed description from tooltip
 - Anchor hides itself when not mouseovering it.
+- Changed timer formating to be more like OmniCC.
